@@ -1,0 +1,18 @@
+{
+  "name": "aivp-monorepo",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "devDependencies": {
+    "concurrently": "^9.0.1"
+  },
+  "scripts": {
+    "dev": "concurrently -k \"npm:dev:web\" \"npm:dev:api\"",
+    "dev:web": "npm --workspace aivp-web run dev",
+    "dev:api": "cd apps/api && uvicorn main:app --reload --port 8000",
+    "build": "npm --workspace aivp-web run build",
+    "preview": "npm --workspace aivp-web run preview"
+  }
+}

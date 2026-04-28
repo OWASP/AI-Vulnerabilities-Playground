@@ -1,0 +1,64 @@
+# AIVP: web (nginx) + API + Redis. Ollama runs on the host by default.
+#
+# Prerequisites (see RUN_STEPS.md → Docker):
+# - Docker Engine 24+ or Docker Desktop
+# - Ollama installed on the host, model pulled (e.g. llama3.1)
+#
+# Usage:
+#   cp .env.docker.example .env
+#   docker compose up --build
+#   Open http://localhost
+#
+services:
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      OLLAMA_URL: ${OLLAMA_URL:-http://host.docker.internal:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.1}
+      OLLAMA_MODEL_TRAINING_LABS: ${OLLAMA_MODEL_TRAINING_LABS:-llama3.1}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost,http://127.0.0.1,http://localhost:80,http://127.0.0.1:80}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      MEMORY_TTL_SECONDS: ${MEMORY_TTL_SECONDS:-3600}
+      SESSION_TTL_SECONDS: ${SESSION_TTL_SECONDS:-3600}
+      SERVER_SALT: ${SERVER_SALT:-change-me-in-production}
+      AIVP_DEFAULT_MODE: ${AIVP_DEFAULT_MODE:-off}
+      ENABLE_TRAINING_LABS: ${ENABLE_TRAINING_LABS:-false}
+      AGENT_B_URL: ${AGENT_B_URL:-http://agent-b:8001}
+      MM_API_BASE: ${MM_API_BASE:-http://api:8000}
+      API_BASE_URL: ${API_BASE_URL:-http://api:8000}
+      JIRA_URL: ${JIRA_URL:-https://example.atlassian.net}
+      GITHUB_API_BASE_URL: ${GITHUB_API_BASE_URL:-https://api.github.com}
+      SLACK_API_BASE_URL: ${SLACK_API_BASE_URL:-https://slack.com/api}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - redis
+    expose:
+      - "8000"
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE: /api
+        VITE_CONTACT_EMAIL: ${VITE_CONTACT_EMAIL:-avinash.kumar@owasp.org}
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-80}:80"
+    depends_on:
+      - api
+
+volumes:
+  redis_data:

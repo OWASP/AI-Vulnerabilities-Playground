@@ -1,0 +1,19 @@
+{
+  "name": "AI Vulnerabilities Playground",
+  "short_name": "AIVP",
+  "description": "Hands-on AI security labs for prompt injection, agentic systems, model manipulation, and MCP risks.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "/aivp-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "prefer_related_applications": false
+}
