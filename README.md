@@ -18,7 +18,6 @@ AIVP is a hands-on AI security lab platform spanning **4 phases** and **50+ labs
   - [Quick Start (macOS/Linux bash)](#quick-start-macoslinux-bash)
   - [Manual Steps](#manual-steps)
 - [Running the Labs](#running-the-labs)
-- [Phase 1 Scenarios](#phase-1-scenarios)
 - [Configuration](#configuration)
 - [Screenshots](#screenshots)
 - [Troubleshooting](#troubleshooting)
