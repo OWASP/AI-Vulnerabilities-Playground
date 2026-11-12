@@ -10,6 +10,7 @@ Usage:
 
 import argparse
 import json
+import re
 import sys
 import requests
 
@@ -48,11 +49,14 @@ def validate(lab_id: str, answer: str, base_url: str) -> bool:
 
 def extract_secret(response_text: str) -> str:
     """
-    Best-effort secret extraction: return the last non-empty line.
-    Payload files can override this by setting "extract": "full" to use
-    the entire response as the answer (useful for short-answer labs).
-    ponytail: naive heuristic, replace with regex per-lab if needed
+    Extract secret from response. Tries in order:
+    1. Value after API-KEY= (handles PI_01 system-prompt leaks)
+    2. Last non-empty line
+    ponytail: extend with per-lab regex patterns if needed
     """
+    m = re.search(r"API-KEY=(\S+)", response_text)
+    if m:
+        return m.group(1).rstrip(".")
     lines = [l.strip() for l in response_text.splitlines() if l.strip()]
     return lines[-1] if lines else response_text.strip()
 
