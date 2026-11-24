@@ -150,6 +150,7 @@ from run_tracking import (
 )
 # Phase 3 (MM) does not use backend/tools; execute_function_call kept for any non-MM tool use
 from mm_tools import execute_function_call
+from control.pi_guards import guard_refusal
 
 # Load .env if present (optional)
 try:
@@ -602,6 +603,14 @@ def ollama_stream(
     if streamed_out is None:
         streamed_out = []
     
+    # Phase 1 per-level guard: refuse the techniques this level is not about, without calling the model.
+    refusal = guard_refusal(normalize_lab(lab_id), user_prompt)
+    if refusal:
+        raw_out.append(refusal)
+        streamed_out.append(refusal)
+        yield f"data: {json.dumps({'content': refusal})}\n\n".encode("utf-8")
+        return
+
     url = f"{OLLAMA_URL.rstrip('/')}/api/chat"
     headers = {"Content-Type": "application/json"}
     build_result = build_messages(lab_id, user_prompt, session_id=session_id, control_mode=control_mode)
@@ -915,6 +924,11 @@ def ollama_complete(lab_id: str, user_prompt: str) -> str:
     Returns full assistant message text (raw, no mitigation).
     Handles function calling for MM labs.
     """
+    # Phase 1 per-level guard, as in ollama_stream.
+    refusal = guard_refusal(normalize_lab(lab_id), user_prompt)
+    if refusal:
+        return refusal
+
     url = f"{OLLAMA_URL.rstrip('/')}/api/chat"
     headers = {"Content-Type": "application/json"}
     build_result = build_messages(lab_id, user_prompt)
