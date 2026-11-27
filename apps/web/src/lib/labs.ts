@@ -103,6 +103,15 @@ export function markSolved(labId: string) {
   window.dispatchEvent(new Event(SOLVED_KEY));
 }
 
+export function resetSolved() {
+  try {
+    localStorage.removeItem(SOLVED_KEY);
+  } catch {
+    return;
+  }
+  window.dispatchEvent(new Event(SOLVED_KEY));
+}
+
 export function useSolved() {
   const [solved, setSolved] = useState(getSolved);
   useEffect(() => {

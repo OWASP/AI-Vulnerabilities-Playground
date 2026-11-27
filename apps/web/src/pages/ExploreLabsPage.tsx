@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { AlertTriangle, Database, Cpu, Zap, ChevronDown, ChevronUp, Construction, CheckCircle } from 'lucide-react';
-import { LAB_PHASES, LABS, useSolved } from '../lib/labs';
+import { LAB_PHASES, LABS, resetSolved, useSolved } from '../lib/labs';
 
 type Props = { setCurrentView: (v: string) => void };
 
@@ -48,14 +48,22 @@ const ExploreLabsPage = ({ setCurrentView }: Props) => {
         Explore Security Labs
       </h1>
 
-      {solved.length > 0 && nextUnsolved && (
-        <div className="flex justify-center mb-8">
+      {solved.length > 0 && (
+        <div className="flex flex-wrap justify-center items-center gap-3 mb-8">
+          {nextUnsolved && (
+            <button
+              onClick={() => setCurrentView(`lab_${nextUnsolved.id}`)}
+              className="px-6 py-2 bg-gradient-to-r from-cyan-600 to-purple-600 text-white rounded-lg text-sm hover:from-cyan-500 hover:to-purple-500 transition-all flex items-center"
+            >
+              <Zap className="w-4 h-4 mr-2" />
+              Continue: {nextUnsolved.name}
+            </button>
+          )}
           <button
-            onClick={() => setCurrentView(`lab_${nextUnsolved.id}`)}
-            className="px-6 py-2 bg-gradient-to-r from-cyan-600 to-purple-600 text-white rounded-lg text-sm hover:from-cyan-500 hover:to-purple-500 transition-all flex items-center"
+            onClick={() => window.confirm('Clear all solved labs and start fresh?') && resetSolved()}
+            className="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors text-sm"
           >
-            <Zap className="w-4 h-4 mr-2" />
-            Continue: {nextUnsolved.name}
+            Reset progress
           </button>
         </div>
       )}
