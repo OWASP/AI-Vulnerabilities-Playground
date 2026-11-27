@@ -86,6 +86,7 @@ const ChatInterface = ({ labId }: Props) => {
         }
         return next;
       });
+      setExpanded(true);
     } catch (e) {
       console.error(e);
       setError('Failed to connect to backend. Make sure the server is running.');

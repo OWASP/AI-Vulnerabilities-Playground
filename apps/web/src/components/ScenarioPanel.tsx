@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Brain, Target, CheckCircle, XCircle } from 'lucide-react';
 import { validateAnswer } from '../services/api';
+import { adjacentLabs, markSolved, navigate } from '../lib/labs';
 
 type Props = {
   labId: string;
@@ -13,6 +14,7 @@ type Props = {
 };
 
 const ScenarioPanel = ({ labId, scenario, objective, secretFormat, whatYouBreak, whatYouLearn, realWorldImpact }: Props) => {
+  const { next, nextLabel } = adjacentLabs(labId);
   const [answer, setAnswer] = useState('');
   const [feedback, setFeedback] = useState<{ success: boolean; message: string } | null>(null);
   const [loading, setLoading] = useState(false);
@@ -21,6 +23,7 @@ const ScenarioPanel = ({ labId, scenario, objective, secretFormat, whatYouBreak,
     setLoading(true);
     try {
       const result = await validateAnswer(labId, answer);
+      if (result.success) markSolved(labId);
       setFeedback(result);
     } catch (e) {
       setFeedback({ success: false, message: 'Error: Unable to validate answer. Check server connection.' });
@@ -111,6 +114,15 @@ const ScenarioPanel = ({ labId, scenario, objective, secretFormat, whatYouBreak,
             {feedback.success ? <CheckCircle className="w-5 h-5" /> : <XCircle className="w-5 h-5" />}
             <span>{feedback.message}</span>
           </div>
+        )}
+
+        {feedback?.success && (
+          <button
+            onClick={() => navigate(next ? `/labs/${next.id}` : '/explore')}
+            className="mt-3 w-full px-4 py-2 bg-gradient-to-r from-cyan-600 to-purple-600 text-white rounded-lg font-medium hover:from-cyan-500 hover:to-purple-500 transition-all"
+          >
+            {next ? `${nextLabel}: ${next.name.replace(':', '')} →` : 'Last lab: back to Labs'}
+          </button>
         )}
       </div>
     </div>
