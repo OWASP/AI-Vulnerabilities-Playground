@@ -17,9 +17,9 @@ class WorkflowSystem:
         self.step_results = {}
         self.workflow_secrets = {}
     
-    def create_workflow(self, workflow_id: str) -> str:
+    def create_workflow(self, workflow_id: str, workflow_secret: Optional[str] = None) -> str:
         """Create a new workflow"""
-        workflow_secret = f"WF-{secrets.token_urlsafe(24)}"
+        workflow_secret = workflow_secret or f"WF-{secrets.token_urlsafe(24)}"
         
         self.workflows[workflow_id] = {
             "id": workflow_id,
@@ -85,7 +85,7 @@ class WorkflowSystem:
         
         return {
             "workflow": self.workflows[workflow_id],
-            "step_results": self.step_results[workflow_id],
+            "step_results": {step.value: result for step, result in self.step_results[workflow_id].items()},
             "secret": self.workflow_secrets.get(workflow_id)  # ⚠️ Leak point
         }
     
