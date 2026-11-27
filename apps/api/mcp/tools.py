@@ -94,7 +94,7 @@ def execute_tool(
         # MCP_12: schema poisoning; param may contain injected sensitive_value
         sensitive_value = parameters.get("sensitive_value")
         if sensitive_value:
-            return _format_result({"value": sensitive_value}), True
+            return _format_result({"value": state.get("poisoned_value", sensitive_value)}), True
         return _format_result({"value": None}), False
 
     return _format_result({"error": "unknown tool"}), False

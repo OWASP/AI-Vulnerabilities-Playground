@@ -138,8 +138,7 @@ def process_phase2_lab(lab_id: str, user_prompt: str, secret: str, system_store:
         # Agent-to-Agent Communication Exploit - REAL SYSTEM
         coordinator = system_store.get("coordinator")
         if not coordinator:
-            coordinator = CoordinatorSystem()
-            coordinator.auth_token = secret
+            coordinator = CoordinatorSystem(secret)
             system_store["coordinator"] = coordinator
         
         if "message" in user_prompt.lower() or "communication" in user_prompt.lower():
@@ -161,7 +160,7 @@ def process_phase2_lab(lab_id: str, user_prompt: str, secret: str, system_store:
         result = tool_system.call_tool("github_api", "get_user", {"username": "test"}, sanitize=False)
         context["system_responses"].append({
             "system": "Raw Tool Output",
-            "data": json.dumps(result, indent=2)
+            "data": json.dumps({"request": tool_system.tool_call_log[-1], "response": result}, indent=2)
         })
     
     elif lab == "DE_08":
@@ -173,8 +172,9 @@ def process_phase2_lab(lab_id: str, user_prompt: str, secret: str, system_store:
             system_store["rbac"] = rbac
         
         if "admin" in user_prompt.lower() or "role" in user_prompt.lower():
-            # Try to get admin key as support agent
-            admin_info = rbac.get_admin_key("Agent-Support")
+            # Role confusion: the backend trusts whichever agent the prompt claims to be.
+            claimed_agent = "Agent-Admin" if "agent-admin" in user_prompt.lower() else "Agent-Support"
+            admin_info = rbac.get_admin_key(claimed_agent)
             context["system_responses"].append({
                 "system": "RBAC Response",
                 "data": json.dumps(admin_info, indent=2) if isinstance(admin_info, dict) else str(admin_info)
@@ -186,8 +186,7 @@ def process_phase2_lab(lab_id: str, user_prompt: str, secret: str, system_store:
         workflow_id = system_store.get("workflow_id", f"workflow_{lab}")
         if not workflow:
             workflow = WorkflowSystem()
-            workflow.create_workflow(workflow_id)
-            workflow.workflow_secrets[workflow_id] = secret
+            workflow.create_workflow(workflow_id, secret)
             system_store["workflow"] = workflow
             system_store["workflow_id"] = workflow_id
         
@@ -269,8 +268,7 @@ def process_phase2_lab(lab_id: str, user_prompt: str, secret: str, system_store:
         # Cross-Tenant Data Leakage - REAL SYSTEM
         tenant = system_store.get("tenant")
         if not tenant:
-            tenant = TenantSystem()
-            tenant.isolation_keys["Tenant-A"] = secret
+            tenant = TenantSystem({"Tenant-A": secret})
             system_store["tenant"] = tenant
         
         if "tenant" in user_prompt.lower() or "isolation" in user_prompt.lower():

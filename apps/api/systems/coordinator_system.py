@@ -8,15 +8,15 @@ from datetime import datetime
 import json
 
 class CoordinatorSystem:
-    def __init__(self):
+    def __init__(self, auth_token: Optional[str] = None):
         self.message_queue = []
         self.agent_tokens = {}
         self.communication_log = []
-        self._initialize_agents()
+        self._initialize_agents(auth_token)
     
-    def _initialize_agents(self):
+    def _initialize_agents(self, auth_token: Optional[str] = None):
         """Initialize agents with tokens"""
-        auth_token = f"AUTH-{secrets.token_urlsafe(24)}"
+        auth_token = auth_token or f"AUTH-{secrets.token_urlsafe(24)}"
         self.agent_tokens["Agent-DataProcessor"] = f"DP-{secrets.token_urlsafe(16)}"
         self.agent_tokens["Agent-Analyzer"] = f"AN-{secrets.token_urlsafe(16)}"
         

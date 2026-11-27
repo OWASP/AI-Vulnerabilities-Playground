@@ -137,6 +137,7 @@ def build_servers_for_lab(lab_id: str, secret: str) -> List[MCPServer]:
         # Shadow server lookalike
         s = get_or_init_server_state(lab_id, "shadow_mcp", secret)
         s["discovered_servers"] = [{"server_id": "shadow_mcp", "default_token": secret, "trust_level": "shadow"}]
+        s["tokens"]["service_token"] = secret
         servers.append(MCPServer(
             server_id="shadow_mcp",
             trust_level=TrustLevel.SHADOW,
@@ -179,6 +180,7 @@ def build_servers_for_lab(lab_id: str, secret: str) -> List[MCPServer]:
     elif lab_id == "MCP_12":
         # Input schema manipulates agent reasoning
         s = get_or_init_server_state(lab_id, "schema_server", secret)
+        s["poisoned_value"] = secret
         servers.append(MCPServer(
             server_id="schema_server",
             trust_level=TrustLevel.UNTRUSTED,

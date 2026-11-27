@@ -7,18 +7,18 @@ from typing import Dict, List, Optional
 import hashlib
 
 class TenantSystem:
-    def __init__(self):
+    def __init__(self, isolation_keys: Optional[Dict[str, str]] = None):
         self.tenants = {}
         self.isolation_keys = {}
         self.tenant_data = {}
-        self._initialize_tenants()
+        self._initialize_tenants(isolation_keys or {})
     
-    def _initialize_tenants(self):
+    def _initialize_tenants(self, isolation_keys: Dict[str, str]):
         """Initialize tenants with isolation keys"""
         tenants = ["Tenant-A", "Tenant-B", "Tenant-C"]
         
         for tenant_id in tenants:
-            isolation_key = f"ISOL-{secrets.token_urlsafe(24)}"
+            isolation_key = isolation_keys.get(tenant_id) or f"ISOL-{secrets.token_urlsafe(24)}"
             self.isolation_keys[tenant_id] = isolation_key
             
             self.tenants[tenant_id] = {
